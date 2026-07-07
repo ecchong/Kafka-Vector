@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka-syslog-pod
+  labels:
+    app: kafka-syslog
+spec:
+  containers:
+    # --- Kafka Container ---
+    - name: kafka
+      image: confluentinc/cp-kafka:latest
+      ports:
+        - containerPort: 9092
+          hostPort: 9092
+        - containerPort: 9094
+          hostPort: 9094
+      env:
+        - name: KAFKA_NODE_ID
+          value: "1"
+        - name: KAFKA_PROCESS_ROLES
+          value: "broker,controller"
+
+        # Since they live in the same Pod, they can communicate internally via localhost
+        - name: KAFKA_LISTENERS
+#          value: "PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:9092"
+          # Open port 9092 for localhost traffic, and port 9094 for external network traffic
+          value: "PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:9092,REMOTE://0.0.0.0:9094"
+        - name: KAFKA_ADVERTISED_LISTENERS
+#         value: "PLAINTEXT://localhost:29092,PLAINTEXT_HOST://localhost:9092"
+          # Broadcast localhost on 9092, and your external IP on 9094
+          # REPLACE '192.168.1.50' with your actual server IP address
+          value: "PLAINTEXT://localhost:29092,PLAINTEXT_HOST://localhost:9092,REMOTE://192.168.0.29:9094"
+        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+#         value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+          # Map the new REMOTE listener to use standard PLAINTEXT
+          value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,REMOTE:PLAINTEXT"
+        - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+          value: "1@localhost:29093"
+        - name: KAFKA_INTER_BROKER_LISTENER_NAME
+          value: "PLAINTEXT"
+        - name: KAFKA_CONTROLLER_LISTENER_NAMES
+          value: "CONTROLLER"
+        - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS
+          value: "0"
+        - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
+          value: "1"
+        - name: KAFKA_TRANSACTION_STATE_LOG_REREPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_LOG_DIRS
+          value: "/tmp/kraft-combined-logs"
+        - name: CLUSTER_ID
+          value: "MkU3OEVBNTcwNTJENDM2Qk"
+
+    # --- Vector Container ---
+    - name: vector
+      image: timberio/vector:latest-alpine
+      args: ["--config", "/etc/vector/vector.toml"]
+      ports:
+        - containerPort: 5140
+          hostPort: 5140
+          protocol: UDP
+      volumeMounts:
+        - name: config-volume
+          mountPath: /etc/vector/vector.toml
+          readOnly: true
+
+  # --- Shared Volumes ---
+  volumes:
+    - name: config-volume
+      hostPath:
+        # Podman requires an absolute path to your configuration file
+        path: /home/echong/Kafka-Vector/vector.toml 
+        type: File
+

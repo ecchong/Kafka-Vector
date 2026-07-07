@@ -1,0 +1,12 @@
+[sources.syslog_in]
+type = "syslog"
+address = "0.0.0.0:5140"
+mode = "udp"
+
+[sinks.kafka_out]
+type = "kafka"
+inputs = ["syslog_in"]
+bootstrap_servers = "localhost:29092"
+topic = "syslog-queue"
+encoding.codec = "json"
+
