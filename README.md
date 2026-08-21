@@ -1,12 +1,26 @@
-## Launch
+# Kafka / Vector pods
+Listen for syslog messages at port 5140 and put them into Kafka queue at port 9094
+
+## Launch pods
 podman play kube kafka-vector-pod.yaml
 
-## Tear down
+## Tear down pods
 podman play kube --down kafka-vector-pod.yaml
 
-## Monitor
-podman exec -it kafka-syslog-pod-kafka kafka-console-consumer --topic syslog-queue --from-beginning --bootstrap-server localhost:9092
+## Monitor the status of the Kafka queue
+podman exec -it kafka-syslog-pod-kafka kafka-console-consumer --topic syslog-queue --from-beginning --bootstrap-server localhost:9094
 
-## Test
+## Send a test message using logger
 logger -d -n localhost -P 5140 "Test syslog message from my local machine"
 
+## Setup RHEL to forward syslog (optional)
+sudo vi /etc/rsyslog.conf
+*.* @ryzen5.lab.automate.nyc:9094
+
+or TCP
+*.* @@ryzen5.lab.automate.nyc:9094
+
+sudo semanage port -a -t syslogd_port_t -p udp 9094
+
+sudo systemctl restart rsyslog
+sudo systemctl status rsyslog
