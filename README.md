@@ -16,6 +16,10 @@ podman exec -it kafka-syslog-pod-kafka kafka-console-consumer --topic syslog-que
 ## Send a test message using logger
 logger -d -n localhost -P 5140 "Test syslog message from my local machine"
 
+## Send a test JSON message using kafka producer
+podman exec -i kafka-syslog-pod-kafka kafka-console-producer --bootstrap-server localhost:9094 \
+--topic syslog-queue < sample.json
+
 ## Setup RHEL to forward syslog (optional)
 sudo vi /etc/rsyslog.conf
 *.* @ryzen5.lab.automate.nyc:9094
