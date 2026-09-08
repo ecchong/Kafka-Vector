@@ -30,6 +30,11 @@ podman exec -i kafka-syslog-pod-kafka kafka-console-producer --bootstrap-server 
 --topic syslog-queue < sample.json
 ~~~
 
+## Run an Ansible Rulebook
+~~
+ansible-rulebook -r rulebooks/kafka-test.yml
+~~
+
 ## Setup RHEL to forward syslog (optional)
 Add destination to `/etc/rsyslog.conf`
 
