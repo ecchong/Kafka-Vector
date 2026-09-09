@@ -1,0 +1,19 @@
+{
+  "watsonAlert": {
+    "schemaVersion": "1.0",
+    "payloadType": "minimum",
+    "canonicalAlert": {
+      "identity": {
+        "alertId": "68cf1700-ac70-11f1-a852-00133b5a82f3",
+        "alertKey": "something",
+        "summary": "This is a test outofmemory",
+        "serverName": "some host",
+        "serverSerial": "12345"
+      },
+      "state": {
+        "state": "open",
+        "severity": 5
+      }
+    }
+  }
+}

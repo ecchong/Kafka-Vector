@@ -29,6 +29,11 @@ logger -d -n localhost -P 5140 "Test syslog message from my local machine"
 podman exec -i kafka-syslog-pod-kafka kafka-console-producer --bootstrap-server localhost:9094 \
 --topic syslog-queue < sample.json
 ~~~
+Use jq for multi-lines JSON file
+~~~
+jq -c . sample.json | podman exec -i kafka-syslog-pod-kafka kafka-console-producer --bootstrap-server localhost:9094 \
+--topic syslog-queue 
+~~~
 
 ## Run an Ansible Rulebook
 ~~

@@ -16,3 +16,12 @@
         - print_event:
             pretty: true
 
+    - name: Watson Alert - outofmemory
+      condition:
+        all:
+          - event.body.watsonAlert.canonicalAlert.identity.summary is search('outofmemory')
+#          - event.body.watsonAlert.canonicalAlert.identity.summary is defined
+      actions:
+        - print_event:
+            pretty: true
+  
