@@ -6,7 +6,7 @@
     - name: Kafka
       ansible.eda.kafka:
         host: kafka-service.kafka.svc.cluster.local
-        port: 9094
+        port: 9092
         topic: my-topic
 
   rules:
