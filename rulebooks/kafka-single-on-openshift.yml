@@ -1,0 +1,27 @@
+---
+- name: Testing Kafka
+  hosts: localhost
+
+  sources:
+    - name: Kafka
+      ansible.eda.kafka:
+        host: kafka-service.kafka.svc.cluster.local
+        port: 9092
+        topic: my-topic
+
+  rules:
+    - name: When message is hello
+      condition: event.body.message == 'hello'
+      actions:
+        - print_event:
+            pretty: true
+
+    - name: Watson Alert - outofmemory
+      condition:
+        all:
+          - event.body.watsonAlert.canonicalAlert.identity.summary is search('outofmemory')
+#          - event.body.watsonAlert.canonicalAlert.identity.summary is defined
+      actions:
+        - print_event:
+            pretty: true
+  
